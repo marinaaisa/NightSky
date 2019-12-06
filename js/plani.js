@@ -17,7 +17,7 @@ function draw_star( context, s )
 {
    context.fillStyle = s.color;
    context.beginPath();
-   context.arc( s.pos.x, s.pos.y, s.radius* 1.3, 0, 2 * Math.PI );
+   context.arc( s.pos.x, s.pos.y, 10 , 0, 2 * Math.PI );      //Modificando el radio cambias el tamaño de las estrellas – original s.radius* 1.3
    context.closePath();
    context.fill();
 }
@@ -117,7 +117,7 @@ function draw_line( context, s1, s2 )
    if ( s1.pos.visible && s2.pos.visible ) {
       context.beginPath();
       context.moveTo( s1.pos.x, s1.pos.y );
-      context.lineWidth = 0.4;
+      context.lineWidth = 5;                               // Aquí editamos el thickness de las constelaciones
       context.lineTo( s2.pos.x, s2.pos.y );
       context.stroke();
    }
@@ -126,7 +126,7 @@ function draw_line( context, s1, s2 )
 
 function draw_sky( context, w, h )
 {
-   /* ----- calculate Earth (sun) position */
+   // ----- calculate Earth (sun) position 
    find_planet( planet[ 2 ], null, now.jd );
    var azalt = skypos_transform( planet[ 2 ].pos, now, w, h );
    var bgcolor;
@@ -136,7 +136,7 @@ function draw_sky( context, w, h )
    else if ( azalt[ 1 ] > -0.31416 ) bgcolor = "#191d29";  //  6,  9, 18
    else bgcolor = "#191d29";
 
-   /* ---- background, blue if sun up, black otherwise */
+   // ---- background, blue if sun up, black otherwise
    context.clearRect( 0, 0, w, h );
    context.globalCompositeOperation = "source-over";
    context.fillStyle = bgcolor;  // planet[ 2 ].pos.visible ? "#182448" : "#000000";
@@ -153,20 +153,21 @@ function draw_sky( context, w, h )
    context.globalCompositeOperation = "xor";
    context.lineWidth = 1;
 
-   /* ----- horizon labels */
+   // ----- horizon labels 
    context.textBaseline = "middle";
    context.fillStyle = "#888";
    context.font = "12px Sans-Serif";
 
-   /* ---- stars */
+   // ---- stars 
    var len = star.length;
    for ( var i = 0; i < len; i++ ) {
       skypos_transform( star[ i ].pos, now, w, h );
-      if ( star[ i ].pos.visible )
-         draw_star( context, star[ i ] );
+      if ( star[ i ].mag < 4.5 )                           // Aquí se edita la Mag para mostrar más estrellas o menos
+         if ( star[ i ].pos.visible )
+            draw_star( context, star[ i ] );
    }
 
-   /* ---- star labels */
+   //---- star labels 
    if ( ck_starlabels ) {
       var len = starname.length;
       for ( i = 0; i < len; i++ ) {
@@ -176,7 +177,8 @@ function draw_sky( context, w, h )
       }
    }
 
-   /* ---- constellation labels */
+
+   // ---- constellation labels 
    if ( ck_conlabels ) {
       var len = conname.length;
       for ( i = 0; i < len; i++ ) {
@@ -186,7 +188,8 @@ function draw_sky( context, w, h )
       }
    }
    
-   /* ---- constellation lines */
+
+   // ---- constellation lines
    if ( ck_conlines ) {
       context.strokeStyle = "#303030";
       len = conline.length;
@@ -194,7 +197,8 @@ function draw_sky( context, w, h )
          draw_line( context, star[ conline[ i ][ 0 ]], star[ conline[ i ][ 1 ]] );
    }
 
-   /* ---- planets */
+   
+   // ---- planets 
    for ( i = 0; i < 9; i++ ) {
       if ( i != 2 ) {
          find_planet( planet[ i ], planet[ 2 ], now.jd );
@@ -203,8 +207,10 @@ function draw_sky( context, w, h )
       if ( planet[ i ].pos.visible )
          draw_planet( context, );
    }
+
+
    
-   /* ---- DSOs */
+   // ---- DSOs 
    if ( ck_dsos ) {
       len = dso.length;
       for ( i = 0; i < len; i++ ) {
@@ -213,8 +219,10 @@ function draw_sky( context, w, h )
             draw_dso( context, dso[ i ] );
       }
    }
+   
+   
 
-   /* ----- Moon */
+   // ----- Moon
    find_moon( moon, planet[ 2 ], now.jd );
    console.log( "phase: " + Astro.raddeg( moon.phase ));
    skypos_transform( moon.pos, now, w, h );
@@ -237,7 +245,7 @@ function saveImage()
    var canvas = document.getElementById("planicanvas");
 
    link.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-   link.download = 'image.png';
+   link.download = 'nightsky.png';
    link.click();
    window.URL.revokeObjectURL(url);
 }

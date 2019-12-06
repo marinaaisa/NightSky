@@ -26,7 +26,7 @@ function skypos_transform( pos, now, w, h )
 function init_stars( star )
 {
    var clut = [
-      "#AEC1FF",  /* bv = -0.4 */
+      "#AEC1FF",  // bv = -0.4
       "#C5D3FF",
       "#EAEDFF",
       "#FFF6F3",
@@ -34,8 +34,9 @@ function init_stars( star )
       "#FFE1B4",
       "#FFD7A6",
       "#FFC682",
-      "#FF4500"   /* bv =  2.0 */
+      "#FF4500"   // bv =  2.0
    ];
+
 
    var len = star.length;
    for ( var i = 0; i < len; i++ ) {
@@ -59,13 +60,13 @@ function init_stars( star )
 function init_dsos( dso )
 {
    var clut = [
-      "#A0A040",   /* 1 open cluster      */
-      "#A0A040",   /* 2 globular cluster  */
-      "#40A060",   /* 3 nebula            */
-      "#40A060",   /* 4 planetary nebula  */
-      "#40A060",   /* 5 supernova remnant */
-      "#A04040",   /* 6 galaxy            */
-      "#808080"    /* 7 other             */
+      "#A0A040",   // 1 open cluster      
+      "#A0A040",   // 2 globular cluster  
+      "#40A060",   // 3 nebula            
+      "#40A060",   // 4 planetary nebula  
+      "#40A060",   // 5 supernova remnant 
+      "#A04040",   // 6 galaxy            
+      "#808080"    // 7 other             
    ];
 
    var len = dso.length;
@@ -81,7 +82,7 @@ function init_dsos( dso )
          default: dso[ i ].name = " ";
       }
 
-      /* special cases */
+      //special cases
 
       switch ( dso[ i ].catalog ) {
          case 1:
@@ -140,7 +141,7 @@ function init_planets( planet )
    }
 }
 
-   
+
 function find_planet( planet, earth, jd )
 {
    function kepler( m, e )
@@ -159,7 +160,7 @@ function find_planet( planet, earth, jd )
    }
 
    var t = ( jd - Astro.JD_J2000 ) / 36525.0;
-   var m = planet.L - planet.wb + planet.dL * t;  /* mean anomaly */
+   var m = planet.L - planet.wb + planet.dL * t;  // mean anomaly
    m = Astro.range( m, Math.PI * 2.0 );
 
    var v = kepler( m, planet.e );
@@ -194,7 +195,7 @@ function find_moon( moon, earth, jd )
    var T, L0, L, LS, D, F, DL, S, H, N, M, C;
    var mlon, mlat;
 
-   /* calculate the Moon's ecliptic longitude and latitude */
+   // calculate the Moon's ecliptic longitude and latitude
    T  = ( jd - 2451545.0 ) / 36525.0;
 
    L0 =      Astro.range( 0.606433 + 1336.855225 * T, 1.0 );
@@ -228,24 +229,24 @@ function find_moon( moon, earth, jd )
          -25 * Math.sin( -2 * L + F ) +
           21 * Math.sin( -L + F );
 
-   /* epoch of date! */
+   // epoch of date! 
    mlon = P2 * Astro.range( L0 + DL / 1296000.0, 1.0 );
    mlat = ( 18520.0 * Math.sin( S ) + N ) / ARC;
 
-   /* convert Sun equatorial J2000 to ecliptic coordinates at epoch jd */ 
-   /* "Earth" ra and dec are really geocentric Sun coordinates */
+   // convert Sun equatorial J2000 to ecliptic coordinates at epoch jd 
+   // "Earth" ra and dec are really geocentric Sun coordinates 
    var coord = [ earth.pos.ra, earth.pos.dec ];
    Astro.ecl_eq( Astro.EQtoECL, coord, coord );
    Astro.precess( Astro.JD_J2000, jd, coord );
 
-   /* calculate Moon phase */
+   // calculate Moon phase
    D = mlon - coord[ 0 ];
    moon.phase = Math.acos( Math.cos( D ) * Math.cos( mlat ));
    if ( Math.sin( D ) < 0.0 )
       moon.phase = P2 - moon.phase;
    moon.phase -= Math.PI;
 
-   /* convert Moon ecliptic to equatorial coordinates */
+   // convert Moon ecliptic to equatorial coordinates
    coord[ 0 ] = mlon;
    coord[ 1 ] = mlat;
    Astro.ecl_eq( Astro.ECLtoEQ, coord, coord );
@@ -253,7 +254,7 @@ function find_moon( moon, earth, jd )
    moon.pos.ra = coord[ 0 ];
    moon.pos.dec = coord[ 1 ];
 
-   /* calculate position angle of the bright limb */
+   // calculate position angle of the bright limb
    var sa  = Math.sin( earth.pos.ra - moon.pos.ra );
    var ca  = Math.cos( earth.pos.ra - moon.pos.ra );
    var sd0 = Math.sin( earth.pos.dec );
@@ -263,3 +264,4 @@ function find_moon( moon, earth, jd )
 
    moon.posAngle = Math.atan2( cd0 * sa, sd0 * cd - cd0 * sd * ca );   
 }
+

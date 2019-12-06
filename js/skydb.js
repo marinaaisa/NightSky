@@ -5,6 +5,8 @@ skydb.js
 Ernie Wright  2 June 2013, 5 May 2014
 ====================================================================== */
 
+// RA es la abreviatura de ascensión recta y DEC significa declinación. 
+
 var star = [
 {pos:{ra:0.023278,dec:-0.099615},mag: 4.61,bv: 1.04},
 {pos:{ra:0.036601,dec: 0.507726},mag: 2.06,bv:-0.11},
