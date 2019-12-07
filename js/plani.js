@@ -174,6 +174,7 @@ function draw_sky( context, w, h )
          skypos_transform( starname[ i ].pos, now, w, h );
          if ( starname[ i ].pos.visible )
             draw_star_label( context, starname[ i ] );
+
       }
    }
 
@@ -230,6 +231,112 @@ function draw_sky( context, w, h )
       draw_moon( context );
 }
 
+function draw_sky_to_svg( context, w, h )
+{
+   // ----- calculate Earth (sun) position 
+   find_planet( planet[ 2 ], null, now.jd );
+   var azalt = skypos_transform( planet[ 2 ].pos, now, w, h );
+   var bgcolor;
+   if ( azalt[ 1 ] > 0 ) bgcolor = "#191d29";              // 24, 36, 72
+   else if ( azalt[ 1 ] > -0.10472 ) bgcolor = "#191d29";  // 18, 27, 54
+   else if ( azalt[ 1 ] > -0.20944 ) bgcolor = "#191d29";  // 12, 18, 36
+   else if ( azalt[ 1 ] > -0.31416 ) bgcolor = "#191d29";  //  6,  9, 18
+   else bgcolor = "#191d29";
+
+   // ---- background, blue if sun up, black otherwise
+   context.clearRect( 0, 0, w, h );
+   context.globalCompositeOperation = "source-over";
+   context.fillStyle = bgcolor;  // planet[ 2 ].pos.visible ? "#182448" : "#000000";
+   context.beginPath();
+   context.arc( w / 2, h / 2, w / 2, 0, 2 * Math.PI );
+
+   context.closePath();
+   context.fill();
+   if ( !clipped ) {
+      context.clip();
+      clipped = true;
+   }
+
+   context.globalCompositeOperation = "xor";
+   context.lineWidth = 1;
+
+   // ----- horizon labels 
+   context.textBaseline = "middle";
+   context.fillStyle = "#888";
+   context.font = "12px Sans-Serif";
+
+   // ---- stars 
+   var len = star.length;
+   for ( var i = 0; i < len; i++ ) {
+      skypos_transform( star[ i ].pos, now, w, h );
+      if ( star[ i ].mag < 4.5 )                           // Aquí se edita la Mag para mostrar más estrellas o menos
+         if ( star[ i ].pos.visible )
+            draw_star( context, star[ i ] );
+   }
+
+   //---- star labels 
+   if ( ck_starlabels ) {
+      var len = starname.length;
+      for ( i = 0; i < len; i++ ) {
+         skypos_transform( starname[ i ].pos, now, w, h );
+         if ( starname[ i ].pos.visible )
+            draw_star_label( context, starname[ i ] );
+
+      }
+   }
+
+
+   // ---- constellation labels 
+   if ( ck_conlabels ) {
+      var len = conname.length;
+      for ( i = 0; i < len; i++ ) {
+         skypos_transform( conname[ i ].pos, now, w, h );
+         if ( conname[ i ].pos.visible )
+            draw_con_label( context, conname[ i ] );
+      }
+   }
+   
+
+   // ---- constellation lines
+   if ( ck_conlines ) {
+      context.strokeStyle = "#303030";
+      len = conline.length;
+      for ( i = 0; i < len; i++ )
+         draw_line( context, star[ conline[ i ][ 0 ]], star[ conline[ i ][ 1 ]] );
+   }
+
+   
+   // ---- planets 
+   for ( i = 0; i < 9; i++ ) {
+      if ( i != 2 ) {
+         find_planet( planet[ i ], planet[ 2 ], now.jd );
+         skypos_transform( planet[ i ].pos, now, w, h );
+      }
+      if ( planet[ i ].pos.visible )
+         draw_planet( context, );
+   }
+
+
+   
+   // ---- DSOs 
+   if ( ck_dsos ) {
+      len = dso.length;
+      for ( i = 0; i < len; i++ ) {
+         skypos_transform( dso[ i ].pos, now, w, h );
+         if ( dso[ i ].pos.visible )
+            draw_dso( context, dso[ i ] );
+      }
+   }
+   
+   
+
+   // ----- Moon
+   find_moon( moon, planet[ 2 ], now.jd );
+   console.log( "phase: " + Astro.raddeg( moon.phase ));
+   skypos_transform( moon.pos, now, w, h );
+   if ( moon.pos.visible )
+      draw_moon( context );
+}
 
 function refresh()
 {
@@ -249,6 +356,24 @@ function saveImage()
    link.click();
    window.URL.revokeObjectURL(url);
 }
+
+function savesvg()
+{
+   var link = document.createElement('a');
+   var canvas = document.getElementById("planicanvas");
+   var context = canvas.getContext('2d');
+   draw_sky_to_svg( context, canvas.width, canvas.height);
+   var mySerializedSVG = ctx.getSerializedSvg();
+   var svg = ctx.getSvg();
+
+   link.href = canvas.toDataURL("image/svg").replace("image/png", "image/octet-stream");
+   link.download = 'nightsky.svg';
+   link.click();
+   window.URL.revokeObjectURL(url);
+
+}
+
+
 
 function set_user_obs()
 {

@@ -94,10 +94,17 @@ em;
 
 button {
    margin-bottom: 20px;
+   font-size: 20px;
+   border-radius: 5px;
 }
 
 table {
    border: 1px solid black;
+   font-family: Helvetica;
+   text-align: center;
+   margin: 2vh auto 2vh auto;
+   width: 70%;
+   color: #A98;
 
 }
 
