@@ -342,6 +342,8 @@ function refresh()
 {
    var canvas = document.getElementById( "planicanvas" );
    if ( !canvas || !canvas.getContext ) return;
+   var canvasSVGContext = new CanvasSVG.Deferred();
+   canvasSVGContext.wrapCanvas(canvas);
    var context = canvas.getContext( "2d" );
    draw_sky( context, canvas.width, canvas.height );
 }
@@ -354,23 +356,26 @@ function saveImage()
    link.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
    link.download = 'nightsky.png';
    link.click();
-   window.URL.revokeObjectURL(url);
+   link.parentNode.removeChild(link);
 }
 
 function savesvg()
 {
-   var link = document.createElement('a');
-   var canvas = document.getElementById("planicanvas");
-   var context = canvas.getContext('2d');
-   draw_sky_to_svg( context, canvas.width, canvas.height);
-   var mySerializedSVG = ctx.getSerializedSvg();
-   var svg = ctx.getSvg();
+   var newSVG = document.getElementById("planicanvas").getContext("2d").getSVG();
 
-   link.href = canvas.toDataURL("image/svg").replace("image/png", "image/octet-stream");
-   link.download = 'nightsky.svg';
-   link.click();
-   window.URL.revokeObjectURL(url);
+   function svgDataURL(svg) {
+      var svgAsXML = (new XMLSerializer).serializeToString(svg);
+      return "data:image/svg+xml," + encodeURIComponent(svgAsXML);
+   }
 
+   var dataURL = svgDataURL(newSVG);
+
+   var dl = document.createElement("a");
+   document.body.appendChild(dl); // This line makes it work in Firefox.
+   dl.setAttribute("href", dataURL);
+   dl.setAttribute("download", "nightskySVG.svg");
+   dl.click();
+   dl.parentNode.removeChild(dl);
 }
 
 
